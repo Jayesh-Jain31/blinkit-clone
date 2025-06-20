@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel - Orders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background: #129202; color: white; }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
+      authDomain: "blinkit-clone-f1981.firebaseapp.com",
+      projectId: "blinkit-clone-f1981",
+      storageBucket: "blinkit-clone-f1981.firebasestorage.app",
+      messagingSenderId: "1004007918648",
+      appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
+      measurementId: "G-BM41MBVEH8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadOrders() {
+      const querySnapshot = await getDocs(collection(db, "orders"));
+      const table = document.getElementById("orders");
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${data.name}</td>
+          <td>${data.phone}</td>
+          <td>${data.address}</td>
+          <td>${data.cart.map(i => i.name + " ₹" + i.price).join(", ")}</td>
+          <td>₹${data.cart.reduce((t, i) => t + i.price, 0)}</td>
+          <td>${data.paymentId}</td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    loadOrders();
+  </script>
+</head>
+<body>
+  <h2>🛒 Admin Panel – All Orders</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Payment ID</th>
+      </tr>
+    </thead>
+    <tbody id="orders"></tbody>
+  </table>
+</body>
+</html>
