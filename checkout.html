@@ -41,10 +41,17 @@
         name: "Blinkit Clone",
         description: "Groceries Order",
         handler: async function (response) {
-          // Save to Firebase
+          // ✅ Save to Firebase with new fields
           await addDoc(collection(db, "orders"), {
-            name, phone, address, cart, paymentId: response.razorpay_payment_id, timestamp: new Date()
+            name,
+            phone,
+            address,
+            cart,
+            paymentId: response.razorpay_payment_id,
+            timestamp: Date.now(),      // 🕓 Save order time
+            delivered: false            // 📦 Used by admin panel
           });
+
           alert("✅ Payment successful!\nOrder saved to Firebase.");
           localStorage.removeItem("cart");
           window.location.href = "index.html";
