@@ -4,9 +4,10 @@
   <title>Checkout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <link rel="stylesheet" href="style.css">
+
   <script type="module">
-    // ✅ Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
@@ -22,67 +23,16 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+  </script>
 
-    window.processOrder = async function () {
+  <script>
+    emailjs.init("PtjaC-O0dl54OTe-j"); // <-- Your Public Key
+
+    async function processOrder() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const address = document.getElementById("address").value.trim();
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
       if (!name || !phone || !address) return alert("Please fill all fields");
-      if (phone.length !== 10 || isNaN(phone)) return alert("Enter valid 10-digit phone");
-
-      const total = cart.reduce((sum, item) => sum + item.price, 0);
-
-      const options = {
-        key: "rzp_test_AbKjaHYtiGi3OZ",
-        amount: total * 100,
-        currency: "INR",
-        name: "Blinkit Clone",
-        description: "Groceries Order",
-        handler: async function (response) {
-          // ✅ Save to Firebase with new fields
-          await addDoc(collection(db, "orders"), {
-            name,
-            phone,
-            address,
-            cart,
-            paymentId: response.razorpay_payment_id,
-            timestamp: Date.now(),      // 🕓 Save order time
-            delivered: false            // 📦 Used by admin panel
-          });
-
-          alert("✅ Payment successful!\nOrder saved to Firebase.");
-          localStorage.removeItem("cart");
-          window.location.href = "index.html";
-        },
-        prefill: { name, email: "test@example.com", contact: phone },
-        theme: { color: "#3399cc" }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-    };
-  </script>
-</head>
-<body>
-  <h2>Checkout</h2>
-  <label>Name:</label><br>
-  <input type="text" id="name" placeholder="Your Name"><br><br>
-
-  <label>Phone:</label><br>
-  <input type="text" id="phone" placeholder="10-digit number"><br><br>
-
-  <label>Address:</label><br>
-  <textarea id="address" rows="4" placeholder="Full Delivery Address"></textarea><br><br>
-
-  <p>Total: ₹<span id="total-price">0</span></p>
-  <button onclick="processOrder()">Pay with Razorpay</button>
-
-  <script>
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const total = cart.reduce((s, it) => s + it.price, 0);
-    document.getElementById("total-price").innerText = total;
-  </script>
-</body>
-</html>
+      if (phone.lengt
