@@ -1,17 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Checkout – Blinkit Clone</title>
+  <title>Checkout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <link rel="stylesheet" href="style.css">
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    input, textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
-    button { background-color: #0a9200; color: white; padding: 10px 15px; border: none; cursor: pointer; }
-    h2 { color: #0a9200; }
-  </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -28,7 +22,8 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app); // make db global
+    const db = getFirestore(app);
+    window.db = db; // expose db globally
   </script>
 
   <script>
@@ -41,8 +36,10 @@
       const email = document.getElementById("email").value.trim();
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      if (!name || !phone || !address || !email) return alert("Please fill all fields");
-      if (phone.length !== 10 || isNaN(phone)) return alert("Enter valid 10-digit phone");
+      if (!name || !phone || !address || !email)
+        return alert("Please fill all fields");
+      if (phone.length !== 10 || isNaN(phone))
+        return alert("Enter valid 10-digit phone");
 
       const total = cart.reduce((sum, item) => sum + item.price, 0);
 
@@ -53,38 +50,37 @@
         name: "Blinkit Clone",
         description: "Groceries Order",
         handler: async function (response) {
-          const paymentId = response.razorpay_payment_id;
-
-          const orderRef = await addDoc(collection(window.db, "orders"), {
-            name, phone, address, email, cart, paymentId, timestamp: new Date(), delivered: false
+          // Save to Firebase
+          await addDoc(collection(window.db, "orders"), {
+            name, phone, email, address, cart, paymentId: response.razorpay_payment_id, timestamp: new Date()
           });
 
-          const cartDetails = cart.map(i => `${i.name} - ₹${i.price}`).join(", ");
-          const templateParams = {
-            to_name: name,
+          // Prepare email data
+          const itemList = cart.map(i => `${i.name} (₹${i.price})`).join(", ");
+          const emailData = {
             to_email: email,
-            to_phone: phone,
-            to_address: address,
-            cart_details: cartDetails,
-            total_amount: total,
-            order_id: paymentId
+            user_name: name,
+            message: `Thank you for your order!\n\nItems: ${itemList}\nTotal: ₹${total}\nAddress: ${address}\n\nYour payment ID is: ${response.razorpay_payment_id}`
           };
 
-          // ✅ Send customer email
-          await emailjs.send("service_f6ne9sy", "template_p607bgz", templateParams);
+          // Send confirmation to user
+          emailjs.send("service_f6ne9sy", "template_p607bgz", emailData)
+            .then(() => console.log("✅ Customer email sent"))
+            .catch(err => console.error("❌ Email failed:", err));
 
-          // ✅ Send admin notification email
-          await emailjs.send("service_f6ne9sy", "template_p607bgz", {
-            ...templateParams,
-            to_email: "jayeshjain66192@gmail.com"
+          // Notify admin
+          emailjs.send("service_f6ne9sy", "template_p607bgz", {
+            to_email: "jayeshjain66192@gmail.com",
+            user_name: "New Order",
+            message: `Order from: ${name}\nPhone: ${phone}\nEmail: ${email}\nAddress: ${address}\nItems: ${itemList}\nTotal: ₹${total}\nPayment ID: ${response.razorpay_payment_id}`
           });
 
-          alert("✅ Payment successful! Confirmation sent.");
+          alert("✅ Payment successful!\nOrder placed.");
           localStorage.removeItem("cart");
           window.location.href = "index.html";
         },
         prefill: { name, email, contact: phone },
-        theme: { color: "#0a9200" }
+        theme: { color: "#3399cc" }
       };
 
       const rzp = new Razorpay(options);
@@ -94,24 +90,25 @@
 </head>
 <body>
   <h2>Checkout</h2>
-  <label>Your Name:</label>
-  <input type="text" id="name" placeholder="Full Name">
 
-  <label>Phone Number:</label>
-  <input type="text" id="phone" placeholder="10-digit number">
+  <label>Name:</label><br>
+  <input type="text" id="name" placeholder="Your Name"><br><br>
 
-  <label>Delivery Address:</label>
-  <textarea id="address" rows="3" placeholder="Full delivery address"></textarea>
+  <label>Phone:</label><br>
+  <input type="text" id="phone" placeholder="10-digit number"><br><br>
 
-  <label>Email Address:</label>
-  <input type="email" id="email" placeholder="Your email to receive confirmation">
+  <label>Email:</label><br>
+  <input type="email" id="email" placeholder="example@mail.com"><br><br>
 
-  <p><strong>Total: ₹<span id="total-price">0</span></strong></p>
+  <label>Address:</label><br>
+  <textarea id="address" rows="4" placeholder="Full Delivery Address"></textarea><br><br>
+
+  <p>Total: ₹<span id="total-price">0</span></p>
   <button onclick="processOrder()">Pay with Razorpay</button>
 
   <script>
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const total = cart.reduce((s, i) => s + i.price, 0);
+    const total = cart.reduce((s, it) => s + it.price, 0);
     document.getElementById("total-price").innerText = total;
   </script>
 </body>
