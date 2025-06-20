@@ -5,16 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase Modules -->
   <script type="module">
-    // ✅ Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
       authDomain: "blinkit-clone-f1981.firebaseapp.com",
       projectId: "blinkit-clone-f1981",
-      storageBucket: "blinkit-clone-f1981.firebasestorage.app",
+      storageBucket: "blinkit-clone-f1981.appspot.com",
       messagingSenderId: "1004007918648",
       appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
       measurementId: "G-BM41MBVEH8"
@@ -41,15 +47,25 @@
         name: "Blinkit Clone",
         description: "Groceries Order",
         handler: async function (response) {
-          // Save to Firebase
+          // Save order to Firebase with Timestamp
           await addDoc(collection(db, "orders"), {
-            name, phone, address, cart, paymentId: response.razorpay_payment_id, timestamp: new Date()
+            name,
+            phone,
+            address,
+            cart,
+            paymentId: response.razorpay_payment_id,
+            timestamp: Timestamp.now()
           });
+
           alert("✅ Payment successful!\nOrder saved to Firebase.");
           localStorage.removeItem("cart");
           window.location.href = "index.html";
         },
-        prefill: { name, email: "test@example.com", contact: phone },
+        prefill: {
+          name: name,
+          email: "test@example.com",
+          contact: phone
+        },
         theme: { color: "#3399cc" }
       };
 
