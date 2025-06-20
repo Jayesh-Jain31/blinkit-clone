@@ -105,11 +105,11 @@
             localStorage.removeItem("cart");
             window.location.href = "index.html";
 
-          } catch (err) {
-            console.error("❌ Error during order:", err);
-            alert("❌ Something went wrong. Check console.");
-          }
-        },
+   catch (err) {
+  alert("❌ Something went wrong:\n" + err.message);
+  document.body.innerHTML += `<p style="color:red;"><b>Error:</b> ${err.message}</p>`;
+  console.error("❌ Error during order:", err);
+}     },
         prefill: { name, email, contact: phone },
         theme: { color: "#3399cc" }
       };
