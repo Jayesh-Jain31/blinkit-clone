@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Checkout</title>
+  <title>Checkout – Blinkit Clone</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+    button { background-color: #0a9200; color: white; padding: 10px 15px; border: none; cursor: pointer; }
+    h2 { color: #0a9200; }
+  </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -22,17 +28,91 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    window.db = getFirestore(app); // make db global
   </script>
 
   <script>
-    emailjs.init("PtjaC-O0dl54OTe-j"); // <-- Your Public Key
+    emailjs.init("PtjaC-O0dl54OTe-j");
 
     async function processOrder() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const address = document.getElementById("address").value.trim();
+      const email = document.getElementById("email").value.trim();
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      if (!name || !phone || !address) return alert("Please fill all fields");
-      if (phone.lengt
+      if (!name || !phone || !address || !email) return alert("Please fill all fields");
+      if (phone.length !== 10 || isNaN(phone)) return alert("Enter valid 10-digit phone");
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+      const options = {
+        key: "rzp_test_AbKjaHYtiGi3OZ",
+        amount: total * 100,
+        currency: "INR",
+        name: "Blinkit Clone",
+        description: "Groceries Order",
+        handler: async function (response) {
+          const paymentId = response.razorpay_payment_id;
+
+          const orderRef = await addDoc(collection(window.db, "orders"), {
+            name, phone, address, email, cart, paymentId, timestamp: new Date(), delivered: false
+          });
+
+          const cartDetails = cart.map(i => `${i.name} - ₹${i.price}`).join(", ");
+          const templateParams = {
+            to_name: name,
+            to_email: email,
+            to_phone: phone,
+            to_address: address,
+            cart_details: cartDetails,
+            total_amount: total,
+            order_id: paymentId
+          };
+
+          // ✅ Send customer email
+          await emailjs.send("service_f6ne9sy", "template_p607bgz", templateParams);
+
+          // ✅ Send admin notification email
+          await emailjs.send("service_f6ne9sy", "template_p607bgz", {
+            ...templateParams,
+            to_email: "jayeshjain66192@gmail.com"
+          });
+
+          alert("✅ Payment successful! Confirmation sent.");
+          localStorage.removeItem("cart");
+          window.location.href = "index.html";
+        },
+        prefill: { name, email, contact: phone },
+        theme: { color: "#0a9200" }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+  </script>
+</head>
+<body>
+  <h2>Checkout</h2>
+  <label>Your Name:</label>
+  <input type="text" id="name" placeholder="Full Name">
+
+  <label>Phone Number:</label>
+  <input type="text" id="phone" placeholder="10-digit number">
+
+  <label>Delivery Address:</label>
+  <textarea id="address" rows="3" placeholder="Full delivery address"></textarea>
+
+  <label>Email Address:</label>
+  <input type="email" id="email" placeholder="Your email to receive confirmation">
+
+  <p><strong>Total: ₹<span id="total-price">0</span></strong></p>
+  <button onclick="processOrder()">Pay with Razorpay</button>
+
+  <script>
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const total = cart.reduce((s, i) => s + i.price, 0);
+    document.getElementById("total-price").innerText = total;
+  </script>
+</body>
+</html>
