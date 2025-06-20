@@ -7,107 +7,7 @@
   <!-- Razorpay & EmailJS -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase Initialization -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
-      authDomain: "blinkit-clone-f1981.firebaseapp.com",
-      projectId: "blinkit-clone-f1981",
-      storageBucket: "blinkit-clone-f1981.appspot.com",
-      messagingSenderId: "1004007918648",
-      appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
-      measurementId: "G-BM41MBVEH8"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    window.db = db; // expose db globally
-  </script>
-
-  <script>
-    emailjs.init("PtjaC-O0dl54OTe-j");
-
-    async function processOrder() {
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const address = document.getElementById("address").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-      if (!name || !phone || !address || !email)
-        return alert("Please fill all fields");
-      if (phone.length !== 10 || isNaN(phone))
-        return alert("Enter valid 10-digit phone");
-
-      const total = cart.reduce((sum, item) => sum + item.price, 0);
-
-      const options = {
-        key: "rzp_test_AbKjaHYtiGi3OZ",
-        amount: total * 100,
-        currency: "INR",
-        name: "Blinkit Clone",
-        description: "Groceries Order",
-        handler: async function (response) {
-          // Save order to Firebase
-          await addDoc(collection(window.db, "orders"), {
-            name,
-            phone,
-            email,
-            address,
-            cart,
-            paymentId: response.razorpay_payment_id,
-            timestamp: new Date()
-          });
-
-          // EmailJS data
-          const itemList = cart.map(i => `${i.name} (₹${i.price})`).join(", ");
-          const emailData = {
-            to_email: email,
-            to_name: name,
-            to_phone: phone,
-            to_address: address,
-            cart_details: itemList,
-            total_amount: total,
-            order_id: response.razorpay_payment_id
-          };
-
-          // Send to customer
-          emailjs.send("service_f6ne9sy", "template_p607bgz", emailData)
-            .then(() => console.log("✅ Customer email sent"))
-            .catch(err => console.error("❌ Customer email failed:", err));
-
-          // Send to admin
-          emailjs.send("service_f6ne9sy", "template_p607bgz", {
-            ...emailData,
-            to_email: "jayeshjain66192@gmail.com",
-            to_name: "New Order Notification"
-          }).then(() => console.log("✅ Admin email sent"))
-            .catch(err => console.error("❌ Admin email failed:", err));
-
-          alert("✅ Payment successful!\nOrder placed.");
-          localStorage.removeItem("cart");
-          window.location.href = "index.html";
-        },
-        prefill: {
-          name: name,
-          email: email,
-          contact: phone
-        },
-        theme: {
-          color: "#3399cc"
-        }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-    }
-  </script>
 </head>
 
 <body>
@@ -128,7 +28,97 @@
   <p>Total: ₹<span id="total-price">0</span></p>
   <button onclick="processOrder()">Pay with Razorpay</button>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
+      authDomain: "blinkit-clone-f1981.firebaseapp.com",
+      projectId: "blinkit-clone-f1981",
+      storageBucket: "blinkit-clone-f1981.appspot.com",
+      messagingSenderId: "1004007918648",
+      appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
+      measurementId: "G-BM41MBVEH8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+  </script>
+
   <script>
+    emailjs.init("PtjaC-O0dl54OTe-j");
+
+    async function processOrder() {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const address = document.getElementById("address").value.trim();
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      if (!name || !phone || !address || !email) return alert("❌ Fill all fields");
+      if (phone.length !== 10 || isNaN(phone)) return alert("❌ Invalid phone number");
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+      const options = {
+        key: "rzp_test_AbKjaHYtiGi3OZ",
+        amount: total * 100,
+        currency: "INR",
+        name: "Blinkit Clone",
+        description: "Groceries Order",
+        handler: async function (response) {
+          try {
+            // Save to Firebase
+            await addDoc(collection(window.db, "orders"), {
+              name, phone, email, address, cart,
+              paymentId: response.razorpay_payment_id,
+              timestamp: new Date()
+            });
+
+            // Prepare EmailJS data
+            const itemList = cart.map(i => `${i.name} (₹${i.price})`).join(", ");
+            const emailData = {
+              to_email: email,
+              to_name: name,
+              to_phone: phone,
+              to_address: address,
+              cart_details: itemList,
+              total_amount: total,
+              order_id: response.razorpay_payment_id
+            };
+
+            // Send confirmation to customer
+            await emailjs.send("service_f6ne9sy", "template_p607bgz", emailData);
+            console.log("✅ Customer email sent");
+
+            // Send to admin
+            await emailjs.send("service_f6ne9sy", "template_p607bgz", {
+              ...emailData,
+              to_email: "jayeshjain66192@gmail.com",
+              to_name: "New Order Notification"
+            });
+            console.log("✅ Admin email sent");
+
+            alert("✅ Payment successful!\nOrder placed.");
+            localStorage.removeItem("cart");
+            window.location.href = "index.html";
+
+          } catch (err) {
+            console.error("❌ Error during order:", err);
+            alert("❌ Something went wrong. Check console.");
+          }
+        },
+        prefill: { name, email, contact: phone },
+        theme: { color: "#3399cc" }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+
+    // Show total
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const total = cart.reduce((s, it) => s + it.price, 0);
     document.getElementById("total-price").innerText = total;
