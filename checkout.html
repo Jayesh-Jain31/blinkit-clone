@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Checkout</h2>
+  <label>Name:</label><br>
+  <input id="name" type="text" placeholder="Your Name"><br><br>
+
+  <label>Phone:</label><br>
+  <input id="phone" type="text" placeholder="10-digit number"><br><br>
+
+  <label>Address:</label><br>
+  <textarea id="address" rows="4" placeholder="Delivery Address"></textarea><br><br>
+
+  <p>Total: ₹<span id="total-price">0</span></p>
+  <button id="pay-button">Pay with Razorpay</button>
+
+  <script>
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const total = cart.reduce((s, it) => s + it.price, 0);
+    document.getElementById("total-price").innerText = total;
+
+    document.getElementById("pay-button").onclick = () => {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const addr = document.getElementById("address").value.trim();
+
+      if (!name || !phone || !addr) return alert("Fill all fields");
+      if (phone.length!==10 || isNaN(phone)) return alert("Enter valid 10-digit phone");
+
+      const options = {
+        key:"rzp_test_AbKjaHYtiGi3OZ",
+        amount: total*100,
+        currency:"INR",
+        name:"Blinkit Clone",
+        handler: res=> {
+          alert(`✅ Success! Payment ID: ${res.razorpay_payment_id}\n\nOrder:\n${name}\n${phone}\n${addr}`);
+          localStorage.removeItem("cart");
+          window.location.href="index.html";
+        },
+        prefill:{name, email:"test@example.com", contact:phone},
+        theme:{color:"#3399cc"}
+      };
+      new Razorpay(options).open();
+    };
+  </script>
+</body>
+</html>
