@@ -3,13 +3,10 @@
 <head>
   <title>Checkout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Razorpay -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-  <!-- Firebase -->
+  <link rel="stylesheet" href="style.css">
   <script type="module">
+    // ✅ Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
@@ -17,7 +14,7 @@
       apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
       authDomain: "blinkit-clone-f1981.firebaseapp.com",
       projectId: "blinkit-clone-f1981",
-      storageBucket: "blinkit-clone-f1981.appspot.com",
+      storageBucket: "blinkit-clone-f1981.firebasestorage.app",
       messagingSenderId: "1004007918648",
       appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
       measurementId: "G-BM41MBVEH8"
@@ -25,11 +22,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    window.db = db; // Make accessible in normal script
-  </script>
 
-  <script>
-    async function processOrder() {
+    window.processOrder = async function () {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const address = document.getElementById("address").value.trim();
@@ -41,49 +35,31 @@
       const total = cart.reduce((sum, item) => sum + item.price, 0);
 
       const options = {
-        key: "rzp_test_AbKjaHYtiGi3OZ", // Your Razorpay test key
+        key: "rzp_test_AbKjaHYtiGi3OZ",
         amount: total * 100,
         currency: "INR",
         name: "Blinkit Clone",
-        description: "Grocery Order",
+        description: "Groceries Order",
         handler: async function (response) {
           // Save to Firebase
-          try {
-            await addDoc(collection(window.db, "orders"), {
-              name,
-              phone,
-              address,
-              cart,
-              paymentId: response.razorpay_payment_id,
-              timestamp: new Date()
-            });
-            alert("✅ Payment successful!\nOrder placed.");
-            localStorage.removeItem("cart");
-            window.location.href = "index.html";
-          } catch (error) {
-            console.error("❌ Firebase Error:", error);
-            alert("Order save failed. Please contact support.");
-          }
+          await addDoc(collection(db, "orders"), {
+            name, phone, address, cart, paymentId: response.razorpay_payment_id, timestamp: new Date()
+          });
+          alert("✅ Payment successful!\nOrder saved to Firebase.");
+          localStorage.removeItem("cart");
+          window.location.href = "index.html";
         },
-        prefill: {
-          name: name,
-          email: "test@example.com",
-          contact: phone
-        },
-        theme: {
-          color: "#0a9200"
-        }
+        prefill: { name, email: "test@example.com", contact: phone },
+        theme: { color: "#3399cc" }
       };
 
       const rzp = new Razorpay(options);
       rzp.open();
-    }
+    };
   </script>
 </head>
-
 <body>
   <h2>Checkout</h2>
-
   <label>Name:</label><br>
   <input type="text" id="name" placeholder="Your Name"><br><br>
 
@@ -98,7 +74,7 @@
 
   <script>
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const total = cart.reduce((s, it) => s + it.price, 0);
     document.getElementById("total-price").innerText = total;
   </script>
 </body>
