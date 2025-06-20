@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 40px; text-align: center; }
+    input { padding: 10px; margin: 10px; width: 250px; }
+    button { padding: 10px 20px; background: #0a9200; color: white; border: none; }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
+      authDomain: "blinkit-clone-f1981.firebaseapp.com",
+      projectId: "blinkit-clone-f1981",
+      storageBucket: "blinkit-clone-f1981.appspot.com",
+      messagingSenderId: "1004007918648",
+      appId: "1:1004007918648:web:29b256eb724cc18bb02acd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.signup = async function () {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Signup successful! Please log in.");
+        window.location.href = "login.html";
+      } catch (err) {
+        alert("Signup failed: " + err.message);
+      }
+    };
+  </script>
+</head>
+<body>
+  <h2>👤 Customer Signup</h2>
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="password" id="password" placeholder="Password"><br>
+  <button onclick="signup()">Signup</button>
+</body>
+  </html>
