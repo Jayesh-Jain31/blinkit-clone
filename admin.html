@@ -5,49 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    h2 { color: #0a9200; display: inline-block; }
-    #logoutBtn {
-      float: right;
-      background: #e74c3c;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    input[type="text"] {
-      padding: 8px;
-      width: 300px;
-      margin-bottom: 15px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
+    h2 { color: #0a9200; }
+    input[type="text"] { padding: 8px; width: 300px; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
     th { background-color: #0a9200; color: white; }
     .delivered { background-color: #e0ffe0; }
-    button {
-      padding: 5px 10px;
-      cursor: pointer;
-    }
+    button { padding: 5px 10px; cursor: pointer; }
   </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import {
-      getFirestore, collection, getDocs, updateDoc, doc, query, orderBy
+      getFirestore, collection, getDocs, updateDoc, doc, query
     } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
     import {
-      getAuth, onAuthStateChanged, signOut
+      getAuth, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
       authDomain: "blinkit-clone-f1981.firebaseapp.com",
@@ -62,19 +37,15 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Protect admin page
+    // ✅ Check if admin is logged in
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        window.location.href = "admin-login.html";
+        alert("Unauthorized. Please login first.");
+        window.location.href = "login.html";
+      } else {
+        loadOrders();
       }
     });
-
-    // Logout function
-    window.logout = function () {
-      signOut(auth).then(() => {
-        window.location.href = "admin-login.html";
-      });
-    };
 
     let allOrders = [];
 
@@ -93,12 +64,8 @@
         allOrders.push(data);
       });
 
-      allOrders.sort((a, b) => {
-        const aTime = a.timestamp?.seconds || 0;
-        const bTime = b.timestamp?.seconds || 0;
-        return bTime - aTime;
-      });
-
+      // Sort by timestamp
+      allOrders.sort((a, b) => (b.timestamp?.toMillis?.() || 0) - (a.timestamp?.toMillis?.() || 0));
       displayOrders(allOrders);
     }
 
@@ -113,9 +80,7 @@
         const items = order.cart?.map(i => `${i.name} ₹${i.price}`).join(", ") || "-";
         const total = order.cart?.reduce((t, i) => t + i.price, 0) || 0;
 
-        const date = order.timestamp?.seconds
-          ? new Date(order.timestamp.seconds * 1000).toLocaleString()
-          : "-";
+        const date = order.timestamp?.toDate?.().toLocaleString?.() || "-";
 
         row.innerHTML = `
           <td>${order.name || "-"}</td>
@@ -126,9 +91,7 @@
           <td>${order.paymentId || "-"}</td>
           <td>${date}</td>
           <td>
-            ${order.delivered
-              ? "✔️ Delivered"
-              : `<button onclick="markDelivered('${order.id}')">Mark Delivered</button>`}
+            ${order.delivered ? "✔️ Delivered" : `<button onclick="markDelivered('${order.id}')">Mark as Delivered</button>`}
           </td>
         `;
         table.appendChild(row);
@@ -151,24 +114,15 @@
       );
       displayOrders(filtered);
     });
-
-    loadOrders();
   </script>
 </head>
-
 <body>
-  <h2>🛒 Admin Panel – Orders</h2>
-  <button id="logoutBtn" onclick="logout()">Logout</button>
-
-  <br><br>
+  <h2>🛒 Admin Panel – All Orders</h2>
   <input type="text" id="search" placeholder="Search by name or phone..." />
-
   <table>
     <thead>
       <tr>
-        <th>Name</th><th>Phone</th><th>Address</th>
-        <th>Items</th><th>Total</th><th>Payment ID</th>
-        <th>Time</th><th>Status</th>
+        <th>Name</th><th>Phone</th><th>Address</th><th>Items</th><th>Total</th><th>Payment ID</th><th>Time</th><th>Status</th>
       </tr>
     </thead>
     <tbody id="orders">
