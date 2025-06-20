@@ -3,14 +3,12 @@
 <head>
   <title>Checkout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Razorpay & EmailJS -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase Initialization -->
+  <!-- Razorpay -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -27,80 +25,53 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    window.db = db; // expose globally
+    window.db = db; // Make accessible in normal script
   </script>
 
   <script>
-    emailjs.init("PtjaC-O0dl54OTe-j"); // your public key
-
     async function processOrder() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const address = document.getElementById("address").value.trim();
-      const email = document.getElementById("email").value.trim();
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-      if (!name || !phone || !address || !email)
-        return alert("Please fill all fields");
-      if (phone.length !== 10 || isNaN(phone))
-        return alert("Enter valid 10-digit phone number");
+      if (!name || !phone || !address) return alert("Please fill all fields");
+      if (phone.length !== 10 || isNaN(phone)) return alert("Enter valid 10-digit phone");
 
       const total = cart.reduce((sum, item) => sum + item.price, 0);
-      const itemList = cart.map(i => `${i.name} (₹${i.price})`).join(", ");
 
       const options = {
-        key: "rzp_test_AbKjaHYtiGi3OZ",
+        key: "rzp_test_AbKjaHYtiGi3OZ", // Your Razorpay test key
         amount: total * 100,
         currency: "INR",
         name: "Blinkit Clone",
-        description: "Groceries Order",
+        description: "Grocery Order",
         handler: async function (response) {
+          // Save to Firebase
           try {
             await addDoc(collection(window.db, "orders"), {
               name,
               phone,
-              email,
               address,
               cart,
               paymentId: response.razorpay_payment_id,
               timestamp: new Date()
             });
-
-            const emailData = {
-              to_email: email,
-              to_name: name,
-              to_phone: phone,
-              to_address: address,
-              cart_details: itemList,
-              total_amount: total,
-              order_id: response.razorpay_payment_id
-            };
-
-            // Send confirmation email to customer
-            await emailjs.send("service_f6ne9sy", "template_vk7k863", emailData);
-
-            // Send notification email to admin
-            await emailjs.send("service_f6ne9sy", "template_vk7k863", {
-              ...emailData,
-              to_email: "jayeshjain66192@gmail.com",
-              to_name: "New Order Notification"
-            });
-
             alert("✅ Payment successful!\nOrder placed.");
             localStorage.removeItem("cart");
             window.location.href = "index.html";
-          } catch (err) {
-            alert("❌ Error placing order: " + err.message);
-            console.error("❌ Order Error:", err);
+          } catch (error) {
+            console.error("❌ Firebase Error:", error);
+            alert("Order save failed. Please contact support.");
           }
         },
         prefill: {
-          name,
-          email,
+          name: name,
+          email: "test@example.com",
           contact: phone
         },
         theme: {
-          color: "#3399cc"
+          color: "#0a9200"
         }
       };
 
@@ -119,9 +90,6 @@
   <label>Phone:</label><br>
   <input type="text" id="phone" placeholder="10-digit number"><br><br>
 
-  <label>Email:</label><br>
-  <input type="email" id="email" placeholder="example@mail.com"><br><br>
-
   <label>Address:</label><br>
   <textarea id="address" rows="4" placeholder="Full Delivery Address"></textarea><br><br>
 
@@ -130,7 +98,7 @@
 
   <script>
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const total = cart.reduce((s, it) => s + it.price, 0);
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
     document.getElementById("total-price").innerText = total;
   </script>
 </body>
