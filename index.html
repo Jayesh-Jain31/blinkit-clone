@@ -1,105 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Blinkit Clone</title>
+  <title>Blinkit Clone - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    nav { margin-bottom: 20px; }
+    a, button {
+      padding: 8px 15px;
+      margin-right: 10px;
+      text-decoration: none;
+      border: none;
+      border-radius: 5px;
+      background: #0a9200;
+      color: white;
+      cursor: pointer;
+    }
+    button { background: #e60000; }
+  </style>
 </head>
 <body>
-  <header><h1>Blinkit Clone</h1></header>
-<nav style="background: #0a9200; padding: 10px; text-align: right;">
-  <a href="signup.html" style="color: white; margin-right: 15px; text-decoration: none;">📝 Signup</a>
-  <a href="login.html" style="color: white; text-decoration: none;">🔐 Login</a>
-</nav>
-  <nav style="background: #0a9200; padding: 10px; text-align: right;">
-  <span id="auth-links">
-    <a href="signup.html" style="color: white; margin-right: 15px; text-decoration: none;">📝 Signup</a>
-    <a href="login.html" style="color: white; text-decoration: none;">🔐 Login</a>
-  </span>
-  <button id="logout-btn" onclick="logout()" style="display:none; background:red; color:white; border:none; padding:5px 10px;">Logout</button>
+
+  <!-- ✅ Navigation -->
+  <nav>
+    <span id="auth-links">
+      <a href="signup.html">Signup</a>
+      <a href="login.html">Login</a>
+    </span>
+    <button id="logout-btn" onclick="logout()" style="display:none;">Logout</button>
   </nav>
+
+  <h2>Welcome to Blinkit Clone</h2>
+  <p>Fast delivery of groceries at your doorstep.</p>
+
+  <!-- ✅ Firebase Login Check Script -->
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
-    authDomain: "blinkit-clone-f1981.firebaseapp.com",
-    projectId: "blinkit-clone-f1981",
-    storageBucket: "blinkit-clone-f1981.appspot.com",
-    messagingSenderId: "1004007918648",
-    appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
-    measurementId: "G-BM41MBVEH8"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
+      authDomain: "blinkit-clone-f1981.firebaseapp.com",
+      projectId: "blinkit-clone-f1981",
+      storageBucket: "blinkit-clone-f1981.appspot.com",
+      messagingSenderId: "1004007918648",
+      appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
+      measurementId: "G-BM41MBVEH8"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // ✅ Check login status
-  onAuthStateChanged(auth, (user) => {
-    const links = document.getElementById("auth-links");
-    const logoutBtn = document.getElementById("logout-btn");
+    // ✅ Show logout or login links
+    onAuthStateChanged(auth, (user) => {
+      const links = document.getElementById("auth-links");
+      const logoutBtn = document.getElementById("logout-btn");
 
-    if (user) {
-      links.style.display = "none";
-      logoutBtn.style.display = "inline-block";
-    } else {
-      links.style.display = "inline";
-      logoutBtn.style.display = "none";
-    }
-  });
+      if (user) {
+        links.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+      } else {
+        links.style.display = "inline";
+        logoutBtn.style.display = "none";
+      }
+    });
 
-  // ✅ Logout function
-  window.logout = async function () {
-    await signOut(auth);
-    alert("Logged out!");
-    location.reload();
-  };
+    // ✅ Logout Function
+    window.logout = async function () {
+      await signOut(auth);
+      alert("Logged out successfully.");
+      location.reload();
+    };
   </script>
-  <div class="product-list">
-    <div class="product-card">
-      <img src="https://via.placeholder.com/100" alt="Apple">
-      <h3>Apple</h3>
-      <p>₹120/kg</p>
-      <button onclick="addToCart('Apple', 120)">Add to Cart</button>
-    </div>
-    <div class="product-card">
-      <img src="https://via.placeholder.com/100" alt="Banana">
-      <h3>Banana</h3>
-      <p>₹60/dozen</p>
-      <button onclick="addToCart('Banana', 60)">Add to Cart</button>
-    </div>
-    <div class="product-card">
-  <img src="https://via.placeholder.com/100" alt="Milk">
-  <h3>Amul Milk</h3>
-  <p>₹55/litre</p>
-  <button onclick="addToCart('Amul Milk', 55)">Add to Cart</button>
-</div>
-
-<div class="product-card">
-  <img src="https://via.placeholder.com/100" alt="Tomato">
-  <h3>Tomato</h3>
-  <p>₹40/kg</p>
-  <button onclick="addToCart('Tomato', 40)">Add to Cart</button>
-</div>
-
-<div class="product-card">
-  <img src="https://via.placeholder.com/100" alt="Pepsi">
-  <h3>Pepsi</h3>
-  <p>₹35 (500ml)</p>
-  <button onclick="addToCart('Pepsi', 35)">Add to Cart</button>
-</div>
-
-<div class="product-card">
-  <img src="https://via.placeholder.com/100" alt="Detergent">
-  <h3>Surf Excel</h3>
-  <p>₹90 (500g)</p>
-  <button onclick="addToCart('Surf Excel', 90)">Add to Cart</button>
-</div>
-
-  </div>
-
-  <footer><a href="cart.html">Go to Cart</a></footer>
-  <script src="script.js"></script>
 </body>
 </html>
