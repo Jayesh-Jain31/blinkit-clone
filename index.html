@@ -23,7 +23,7 @@
 
   <!-- ✅ Navigation -->
   <nav>
-    <span id="auth-links">
+    <span id="auth-links" style="display:none;">
       <a href="signup.html">Signup</a>
       <a href="login.html">Login</a>
     </span>
@@ -33,7 +33,7 @@
   <h2>Welcome to Blinkit Clone</h2>
   <p>Fast delivery of groceries at your doorstep.</p>
 
-  <!-- ✅ Firebase Login Check Script -->
+  <!-- ✅ Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -51,21 +51,19 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ✅ Show logout or login links
-    onAuthStateChanged(auth, (user) => {
-      const links = document.getElementById("auth-links");
-      const logoutBtn = document.getElementById("logout-btn");
+    const links = document.getElementById("auth-links");
+    const logoutBtn = document.getElementById("logout-btn");
 
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         links.style.display = "none";
         logoutBtn.style.display = "inline-block";
       } else {
-        links.style.display = "inline";
+        links.style.display = "inline-block";
         logoutBtn.style.display = "none";
       }
     });
 
-    // ✅ Logout Function
     window.logout = async function () {
       await signOut(auth);
       alert("Logged out successfully.");
