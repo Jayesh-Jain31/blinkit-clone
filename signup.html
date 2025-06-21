@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Signup</title>
+  <title>Customer Signup</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: Arial; padding: 40px; text-align: center; }
@@ -29,18 +29,18 @@
       const password = document.getElementById("password").value.trim();
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        alert("Signup successful! Please log in.");
+        alert("✅ Signup successful!");
         window.location.href = "login.html";
       } catch (err) {
-        alert("Signup failed: " + err.message);
+        alert("❌ " + err.message);
       }
     };
   </script>
 </head>
 <body>
-  <h2>👤 Customer Signup</h2>
+  <h2>📝 Customer Signup</h2>
   <input type="email" id="email" placeholder="Email"><br>
   <input type="password" id="password" placeholder="Password"><br>
   <button onclick="signup()">Signup</button>
 </body>
-  </html>
+</html>
