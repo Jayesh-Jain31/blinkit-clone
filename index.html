@@ -18,6 +18,44 @@
   </span>
   <button id="logout-btn" onclick="logout()" style="display:none; background:red; color:white; border:none; padding:5px 10px;">Logout</button>
   </nav>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
+    authDomain: "blinkit-clone-f1981.firebaseapp.com",
+    projectId: "blinkit-clone-f1981",
+    storageBucket: "blinkit-clone-f1981.appspot.com",
+    messagingSenderId: "1004007918648",
+    appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
+    measurementId: "G-BM41MBVEH8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // ✅ Check login status
+  onAuthStateChanged(auth, (user) => {
+    const links = document.getElementById("auth-links");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if (user) {
+      links.style.display = "none";
+      logoutBtn.style.display = "inline-block";
+    } else {
+      links.style.display = "inline";
+      logoutBtn.style.display = "none";
+    }
+  });
+
+  // ✅ Logout function
+  window.logout = async function () {
+    await signOut(auth);
+    alert("Logged out!");
+    location.reload();
+  };
+  </script>
   <div class="product-list">
     <div class="product-card">
       <img src="https://via.placeholder.com/100" alt="Apple">
