@@ -33,16 +33,15 @@
   <div id="product-list"></div>
 
   <script>
-    // Get logged-in user from localStorage
+    // Check login
     const user = JSON.parse(localStorage.getItem("customer"));
     if (!user) {
-      // Not logged in, redirect to login
       window.location.href = "login.html";
     } else {
       document.getElementById("user-name").innerText = user.name || "Customer";
     }
 
-    // Product List (you can load this from Firebase later)
+    // Dummy product list
     const products = [
       { id: 1, name: "Tomatoes", price: 40 },
       { id: 2, name: "Potatoes", price: 30 },
@@ -51,6 +50,7 @@
       { id: 5, name: "Bread", price: 25 }
     ];
 
+    // Display products
     const list = document.getElementById("product-list");
     products.forEach(product => {
       const div = document.createElement("div");
@@ -63,6 +63,7 @@
       list.appendChild(div);
     });
 
+    // Add to cart
     function addToCart(product) {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
       cart.push(product);
@@ -70,9 +71,10 @@
       alert(`${product.name} added to cart!`);
     }
 
+    // Logout
     function logout() {
       localStorage.removeItem("customer");
-      alert("You have been logged out.");
+      alert("Logged out.");
       window.location.href = "login.html";
     }
   </script>
