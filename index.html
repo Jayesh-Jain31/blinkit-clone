@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- Header -->
   <header>
     <h2>Blinkit</h2>
     <div>
@@ -14,8 +16,10 @@
     </div>
   </header>
 
+  <!-- Product List -->
   <main id="product-list"></main>
 
+  <!-- Product Script -->
   <script>
     const products = [
       {
@@ -35,6 +39,18 @@
         name: "Tata Salt 1kg",
         price: 25,
         image: "https://i.imgur.com/CuFg3gh.jpg"
+      },
+      {
+        id: 4,
+        name: "Red Label Tea 250g",
+        price: 90,
+        image: "https://i.imgur.com/x6EKq4P.jpg"
+      },
+      {
+        id: 5,
+        name: "Parle-G Biscuits",
+        price: 10,
+        image: "https://i.imgur.com/1ajcBqe.jpg"
       }
     ];
 
@@ -64,5 +80,6 @@
 
     renderProducts();
   </script>
+
 </body>
 </html>
