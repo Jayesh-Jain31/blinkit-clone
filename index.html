@@ -1,74 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Blinkit Clone - Home</title>
+  <title>Blinkit Clone – Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; padding: 20px; }
-    nav { margin-bottom: 20px; }
-    a, button {
-      padding: 8px 15px;
-      margin-right: 10px;
-      text-decoration: none;
-      border: none;
-      border-radius: 5px;
-      background: #0a9200;
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { color: #0a9200; }
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    button {
+      background-color: #0a9200;
       color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
       cursor: pointer;
     }
-    button { background: #e60000; }
   </style>
 </head>
 <body>
 
-  <!-- ✅ Navigation -->
-  <nav>
-    <span id="auth-links" style="display:none;">
-      <a href="signup.html">Signup</a>
-      <a href="login.html">Login</a>
-    </span>
-    <button id="logout-btn" onclick="logout()" style="display:none;">Logout</button>
-  </nav>
+  <h2>Welcome, <span id="user-name">Customer</span> 👋</h2>
+  <button onclick="logout()">Logout</button>
 
-  <h2>Welcome to Blinkit Clone</h2>
-  <p>Fast delivery of groceries at your doorstep.</p>
+  <hr>
 
-  <!-- ✅ Firebase Script -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  <h3>🛒 Available Products</h3>
+  <div id="product-list"></div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBeTcROuwX-XHGp-GEVomT00G3xwYAf1Ro",
-      authDomain: "blinkit-clone-f1981.firebaseapp.com",
-      projectId: "blinkit-clone-f1981",
-      storageBucket: "blinkit-clone-f1981.appspot.com",
-      messagingSenderId: "1004007918648",
-      appId: "1:1004007918648:web:29b256eb724cc18bb02acd",
-      measurementId: "G-BM41MBVEH8"
-    };
+  <script>
+    // Get logged-in user from localStorage
+    const user = JSON.parse(localStorage.getItem("customer"));
+    if (!user) {
+      // Not logged in, redirect to login
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("user-name").innerText = user.name || "Customer";
+    }
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    // Product List (you can load this from Firebase later)
+    const products = [
+      { id: 1, name: "Tomatoes", price: 40 },
+      { id: 2, name: "Potatoes", price: 30 },
+      { id: 3, name: "Onions", price: 35 },
+      { id: 4, name: "Milk 1L", price: 60 },
+      { id: 5, name: "Bread", price: 25 }
+    ];
 
-    const links = document.getElementById("auth-links");
-    const logoutBtn = document.getElementById("logout-btn");
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        links.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-      } else {
-        links.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-      }
+    const list = document.getElementById("product-list");
+    products.forEach(product => {
+      const div = document.createElement("div");
+      div.className = "product";
+      div.innerHTML = `
+        <h4>${product.name}</h4>
+        <p>Price: ₹${product.price}</p>
+        <button onclick='addToCart(${JSON.stringify(product)})'>Add to Cart</button>
+      `;
+      list.appendChild(div);
     });
 
-    window.logout = async function () {
-      await signOut(auth);
-      alert("Logged out successfully.");
-      location.reload();
-    };
+    function addToCart(product) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.push(product);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert(`${product.name} added to cart!`);
+    }
+
+    function logout() {
+      localStorage.removeItem("customer");
+      alert("You have been logged out.");
+      window.location.href = "login.html";
+    }
   </script>
+
 </body>
 </html>
