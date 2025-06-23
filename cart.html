@@ -1,176 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Checkout – Blinkit Style</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout - Blinkit Clone</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-    }
-    .container {
-      padding: 16px;
-    }
-    .section {
-      background: #fff;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .section h3 {
-      margin: 0 0 12px;
-    }
-    .product {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .product span { color: #333; }
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: #fff;
-      padding: 12px 16px;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .btn {
-      background: #0a9200;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    .address-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .address-box button {
-      background: transparent;
-      color: #0a9200;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .like-section {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-    }
-    .like-section .suggestion {
-      min-width: 120px;
-      background: #fff;
-      border-radius: 8px;
-      padding: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      text-align: center;
-      font-size: 14px;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f8f9fa; }
+    .checkout-container { padding: 16px; max-width: 600px; margin: auto; }
+    h2 { margin-top: 0; }
+    .section { background: white; padding: 16px; margin-bottom: 16px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.05); }
+    .product { display: flex; align-items: center; margin-bottom: 12px; }
+    .product img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; margin-right: 12px; }
+    .product-details { flex: 1; }
+    .suggestions { display: flex; overflow-x: auto; gap: 10px; }
+    .suggestions .product { flex: 0 0 auto; width: 140px; flex-direction: column; align-items: start; }
+    .suggestions .product img { width: 100%; height: auto; }
+    .change-address { background: none; border: none; color: #0a9200; font-weight: bold; float: right; cursor: pointer; }
+    .fixed-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+    .place-order { background: #0a9200; color: white; border: none; width: 100%; padding: 14px; font-size: 16px; border-radius: 8px; }
+    .form-input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+    label { font-weight: bold; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Products -->
+  <div class="checkout-container">
     <div class="section">
-      <h3>🛒 Items in Your Cart</h3>
-      <div id="product-list"></div>
+      <h2>Delivery Address <button class="change-address" onclick="editAddress()">+ Change/Add</button></h2>
+      <div id="address-details">123 Street Name, City, State</div>
     </div>
 
-    <!-- Suggestions -->
     <div class="section">
-      <h3>🧡 You might also like</h3>
-      <div class="like-section">
-        <div class="suggestion">Chips</div>
-        <div class="suggestion">Biscuits</div>
-        <div class="suggestion">Milk</div>
-        <div class="suggestion">Fruits</div>
+      <h2>Order Summary</h2>
+      <div id="cart-items"></div>
+    </div>
+
+    <div class="section">
+      <h2>You might also like</h2>
+      <div class="suggestions">
+        <div class="product">
+          <img src="https://via.placeholder.com/100" alt="suggestion1">
+          <div class="product-details">
+            <strong>Chips</strong><br><small>₹20</small>
+          </div>
+        </div>
+        <div class="product">
+          <img src="https://via.placeholder.com/100" alt="suggestion2">
+          <div class="product-details">
+            <strong>Cold Drink</strong><br><small>₹30</small>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Address -->
     <div class="section">
-      <div class="address-box">
-        <h3>📍 Delivery Address</h3>
-        <button onclick="promptAddress()">+ Change/Add</button>
-      </div>
-      <div id="delivery-address">Not added yet</div>
+      <h2>Delivery Slot</h2>
+      <select class="form-input" id="slot">
+        <option>Now (10-30 mins)</option>
+        <option>10:00 AM - 12:00 PM</option>
+        <option>12:00 PM - 2:00 PM</option>
+        <option>2:00 PM - 4:00 PM</option>
+      </select>
     </div>
 
-    <!-- Payment -->
     <div class="section">
-      <h3>💳 Pay using</h3>
-      <p>Razorpay (UPI, Cards, Wallets)</p>
+      <h2>Promo Code</h2>
+      <input type="text" class="form-input" id="promo" placeholder="Enter promo code">
+    </div>
+
+    <div class="section">
+      <h2>Pay Using</h2>
+      <p>💳 Razorpay / UPI / Card / Netbanking</p>
     </div>
   </div>
 
-  <div class="bottom-bar">
-    <div>Total: ₹<span id="total-price">0</span></div>
-    <button class="btn" onclick="payNow()">Place Order</button>
+  <div class="fixed-footer">
+    <button class="place-order" onclick="placeOrder()">Place Order</button>
   </div>
 
   <script>
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const list = document.getElementById("product-list");
-    let total = 0;
-
-    cart.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "product";
-      div.innerHTML = `<span>${item.name}</span><span>₹${item.price}</span>`;
-      list.appendChild(div);
-      total += item.price;
-    });
-
-    document.getElementById("total-price").innerText = total;
-
-    let address = localStorage.getItem("address") || "";
-    document.getElementById("delivery-address").innerText = address || "Not added yet";
-
-    function promptAddress() {
-      const newAddress = prompt("Enter delivery address:", address);
-      if (newAddress) {
-        address = newAddress;
-        localStorage.setItem("address", newAddress);
-        document.getElementById("delivery-address").innerText = newAddress;
+    function loadCart() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const container = document.getElementById("cart-items");
+      container.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "product";
+        row.innerHTML = `
+          <img src="${item.image || 'https://via.placeholder.com/100'}" alt="">
+          <div class="product-details">
+            <strong>${item.name}</strong><br><small>₹${item.price}</small>
+          </div>
+        `;
+        container.appendChild(row);
+        total += item.price;
+      });
+      if (total === 0) {
+        container.innerHTML = '<p>Your cart is empty.</p>';
+      } else {
+        const totalEl = document.createElement("p");
+        totalEl.innerHTML = `<strong>Total: ₹${total}</strong>`;
+        container.appendChild(totalEl);
       }
     }
 
-    function payNow() {
-      if (!address) return alert("Please add your delivery address.");
-
-      const options = {
-        key: "rzp_test_AbKjaHYtiGi3OZ",
-        amount: total * 100,
-        currency: "INR",
-        name: "Blinkit Clone",
-        description: "Groceries Order",
-        handler: function (response) {
-          alert("✅ Payment successful!\nPayment ID: " + response.razorpay_payment_id);
-          localStorage.removeItem("cart");
-          window.location.href = "index.html";
-        },
-        prefill: {
-          name: "Customer",
-          email: "customer@example.com",
-          contact: "9999999999"
-        },
-        theme: {
-          color: "#0a9200"
-        }
-      };
-      const rzp = new Razorpay(options);
-      rzp.open();
+    function placeOrder() {
+      alert("🛒 Order Placed via Razorpay!");
+      localStorage.removeItem("cart");
+      window.location.href = "index.html";
     }
+
+    function editAddress() {
+      const newAddr = prompt("Enter new delivery address:", document.getElementById("address-details").innerText);
+      if (newAddr) document.getElementById("address-details").innerText = newAddr;
+    }
+
+    loadCart();
   </script>
 </body>
 </html>
