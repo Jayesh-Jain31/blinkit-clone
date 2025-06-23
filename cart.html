@@ -4,6 +4,7 @@
   <title>Checkout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -53,6 +54,22 @@
       cursor: pointer;
     }
 
+    .payment-method {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 80px;
+    }
+
+    .payment-method h4 {
+      margin-bottom: 10px;
+    }
+
+    .payment-method label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
     .bottom-bar {
       position: fixed;
       bottom: 0;
@@ -97,7 +114,7 @@
       max-width: 400px;
     }
 
-    .modal-content input {
+    .modal-content textarea {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -127,77 +144,9 @@
     </div>
 
     <div id="cartItems"></div>
-  </div>
 
-  <!-- Bottom Bar -->
-  <div class="bottom-bar">
-    <div>₹<span id="totalPrice">0</span> Total</div>
-    <button onclick="placeOrder()">Place Order</button>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="addressModal">
-    <div class="modal-content">
-      <h3>Add/Change Address</h3>
-      <textarea id="addressInput" rows="4" placeholder="Enter full delivery address"></textarea>
-      <button onclick="saveAddress()">Save</button>
-    </div>
-  </div>
-
-  <script>
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    function loadCart() {
-      const cartContainer = document.getElementById("cartItems");
-      const totalEl = document.getElementById("totalPrice");
-      cartContainer.innerHTML = "";
-      let total = 0;
-
-      cart.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-          <div>
-            <strong>${item.name}</strong><br>
-            ₹${item.price}
-          </div>
-          <div>
-            Qty: ${item.qty || 1}
-          </div>
-        `;
-        total += (item.price * (item.qty || 1));
-        cartContainer.appendChild(div);
-      });
-
-      totalEl.innerText = total.toFixed(2);
-    }
-
-    function placeOrder() {
-      const address = localStorage.getItem("checkout_address") || "";
-      if (!address) return alert("Please add a delivery address.");
-      if (cart.length === 0) return alert("Your cart is empty.");
-      alert("Order placed successfully!");
-      localStorage.removeItem("cart");
-      window.location.href = "index.html";
-    }
-
-    function openAddressModal() {
-      document.getElementById("addressModal").style.display = "flex";
-    }
-
-    function saveAddress() {
-      const address = document.getElementById("addressInput").value.trim();
-      if (!address) return alert("Please enter address.");
-      localStorage.setItem("checkout_address", address);
-      document.getElementById("addressText").innerText = address;
-      document.getElementById("addressModal").style.display = "none";
-    }
-
-    window.onload = () => {
-      loadCart();
-      const saved = localStorage.getItem("checkout_address");
-      if (saved) document.getElementById("addressText").innerText = saved;
-    };
-  </script>
-</body>
-</html>
+    <div class="payment-method">
+      <h4>Pay Using:</h4>
+      <label><input type="radio" name="payment" value="razorpay" checked> Razorpay</label>
+      <!-- You can add more methods like below -->
+      <!-- <label><input type="radio" name="payment
