@@ -1,99 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Your Cart – Blinkit Style</title>
+  <title>Your Cart – Blinkit Clone</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
+    body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; }
+    header {
+      background: #0a9200;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
-    h2 {
-      text-align: center;
-      color: #0a9200;
-    }
-
+    header h1 { margin: 0; font-size: 24px; }
     .cart-container {
-      max-width: 800px;
-      margin: auto;
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
-
     .cart-item {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #eee;
       padding: 10px 0;
     }
-
-    .cart-item img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .item-details {
-      flex: 1;
-      margin-left: 20px;
-    }
-
-    .item-name {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .item-price {
-      color: #555;
-      margin-top: 5px;
-    }
-
-    .remove-btn {
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    .total-section {
-      text-align: right;
-      font-size: 20px;
-      margin-top: 20px;
-    }
-
-    .checkout-btn {
-      display: block;
-      margin: 30px auto;
-      padding: 12px 25px;
-      background-color: #0a9200;
-      color: white;
-      border: none;
-      border-radius: 8px;
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item span {
       font-size: 16px;
-      cursor: pointer;
     }
-
-    .empty {
-      text-align: center;
+    .total {
+      text-align: right;
+      font-weight: bold;
+      margin-top: 20px;
       font-size: 18px;
-      color: #888;
-      margin-top: 40px;
     }
+    .checkout-btn {
+      background: #0a9200;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      margin-top: 20px;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
 
-    @media (max-width: 600px) {
-      .cart-item {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+<header>
+  <h1>🛒 Your Cart</h1>
+  <a href="index.html" style="color:white;">← Back</a>
+</header>
 
-      .item-details {
-        margin-left: 0;
-        margin-top: 10px;
-      }
+<div class="cart-container" id="cartItems">
+  <!-- Cart items will be displayed here -->
+</div>
 
-      .total-section {
-        text-align: le
-        
+<script>
+  const cartContainer = document.getElementById("cartItems");
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (cart.length === 0) {
+    cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+  } else {
+    let total = 0;
+    cart.forEach(item => {
+      total += item.price;
+      const div = document.createElement("div");
+      div.className = "cart-item";
+      div.innerHTML = `
+        <span>${item.name}</span>
+        <span>₹${item.price}</span>
+      `;
+      cartContainer.appendChild(div);
+    });
+
+    const totalDiv = document.createElement("div");
+    totalDiv.className = "total";
+    totalDiv.innerText = "Total: ₹" + total;
+    cartContainer.appendChild(totalDiv);
+
+    const checkoutBtn = document.createElement("button");
+    checkoutBtn.className = "checkout-btn";
+    checkoutBtn.innerText = "Proceed to Checkout";
+    checkoutBtn.onclick = () => window.location.href = "checkout.html";
+    cartContainer.appendChild(checkoutBtn);
+  }
+</script>
+
+</body>
+</html>
