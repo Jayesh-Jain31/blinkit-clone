@@ -1,206 +1,128 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cart – Blinkit Style</title>
+  <title>Your Cart – Blinkit Clone</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 0;
+    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+    h2 { color: #0a9200; }
+    .cart-container {
+      max-width: 800px;
+      margin: auto;
     }
-
-    header {
+    .cart-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: white;
-      padding: 15px 20px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 0;
-    }
-
-    header h2 {
-      color: #0a9200;
-      margin: 0;
-    }
-
-    header a {
-      text-decoration: none;
-      color: #0a9200;
-      margin-left: 15px;
-      font-weight: bold;
-    }
-
-    .badge {
-      background: red;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      font-size: 12px;
-      vertical-align: super;
-    }
-
-    .cart-container {
-      padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .cart-item {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-      display: flex;
-      gap: 15px;
-    }
-
-    .cart-item img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
+      padding: 10px;
+      margin: 10px 0;
       border-radius: 8px;
-      background: #eee;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-
-    .info {
+    .cart-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      background: #f0f0f0;
+      margin-right: 15px;
+      border-radius: 6px;
+    }
+    .item-info {
       flex: 1;
     }
-
-    .info h4 {
+    .item-info h4 {
       margin: 0 0 5px;
     }
-
-    .qty-control {
+    .qty-controls {
       display: flex;
       align-items: center;
-      margin-top: 5px;
+      gap: 5px;
     }
-
-    .qty-control button {
+    button {
       padding: 5px 10px;
-      font-size: 16px;
-      background: none;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-
-    .qty-control span {
-      margin: 0 10px;
-      font-weight: bold;
-    }
-
-    .remove-btn {
-      background: #ff4d4d;
-      color: white;
       border: none;
-      padding: 6px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .total-section {
-      text-align: right;
-      padding: 20px;
-      font-size: 18px;
-      background: white;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-      position: sticky;
-      bottom: 0;
-    }
-
-    .checkout-btn {
       background: #0a9200;
       color: white;
-      padding: 12px 24px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
-      margin-top: 10px;
+    }
+    .remove-btn {
+      background: red;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      text-align: right;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h2>🛒 My Cart</h2>
-    <div>
-      <a href="index.html">Home</a>
-      <a href="cart.html">Cart <span class="badge" id="cart-badge">0</span></a>
-    </div>
-  </header>
-
-  <div class="cart-container" id="cart-container"></div>
-
-  <div class="total-section">
-    <div>Total: ₹<span id="total-amount">0</span></div>
-    <a href="checkout.html"><button class="checkout-btn">Proceed to Checkout</button></a>
+  <div class="cart-container">
+    <h2>🛒 Your Cart</h2>
+    <div id="cart-list">Loading cart...</div>
+    <div class="total" id="cart-total"></div>
+    <br>
+    <a href="checkout.html"><button>Proceed to Checkout</button></a>
   </div>
 
   <script>
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartList = document.getElementById("cart-list");
+    const cartTotal = document.getElementById("cart-total");
 
     function renderCart() {
-      const container = document.getElementById("cart-container");
-      const badge = document.getElementById("cart-badge");
+      cartList.innerHTML = "";
       let total = 0;
-      let count = 0;
-      container.innerHTML = "";
 
       if (cart.length === 0) {
-        container.innerHTML = "<p>Your cart is empty.</p>";
-        document.getElementById("total-amount").innerText = "0";
-        badge.innerText = "0";
+        cartList.innerHTML = "<p>Your cart is empty.</p>";
+        cartTotal.innerText = "";
         return;
       }
 
-      cart.forEach((item, i) => {
-        const price = item.price * item.qty;
-        total += price;
-        count += item.qty;
+      cart.forEach((item, index) => {
+        total += item.price * (item.qty || 1);
 
         const div = document.createElement("div");
         div.className = "cart-item";
         div.innerHTML = `
-          <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}">
-          <div class="info">
+          <img src="${item.image || 'https://via.placeholder.com/60'}">
+          <div class="item-info">
             <h4>${item.name}</h4>
-            <div>₹${item.price} × ${item.qty} = ₹${price}</div>
-            <div class="qty-control">
-              <button onclick="updateQty(${i}, -1)">−</button>
-              <span>${item.qty}</span>
-              <button onclick="updateQty(${i}, 1)">+</button>
+            <p>Price: ₹${item.price}</p>
+            <div class="qty-controls">
+              <button onclick="updateQty(${index}, -1)">-</button>
+              <span>${item.qty || 1}</span>
+              <button onclick="updateQty(${index}, 1)">+</button>
+              <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
             </div>
-            <button class="remove-btn" onclick="removeItem(${i})">Remove</button>
           </div>
         `;
-        container.appendChild(div);
+        cartList.appendChild(div);
       });
 
-      document.getElementById("total-amount").innerText = total;
-      badge.innerText = count;
-      localStorage.setItem("cart", JSON.stringify(cart));
+      cartTotal.innerText = `Total: ₹${total}`;
     }
 
     function updateQty(index, change) {
-      cart[index].qty += change;
-      if (cart[index].qty <= 0) cart.splice(index, 1);
-      renderCart();
+      cart[index].qty = (cart[index].qty || 1) + change;
+      if (cart[index].qty <= 0) removeItem(index);
+      else {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+      }
     }
 
     function removeItem(index) {
       cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
       renderCart();
     }
 
     renderCart();
   </script>
-
 </body>
 </html>
