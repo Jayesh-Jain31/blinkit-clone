@@ -47,5 +47,76 @@
       margin-bottom: 10px;
     }
     .product h3 {
-      margin: 10p
-      
+      margin: 10px 0 5px;
+      font-size: 16px;
+    }
+    .product p {
+      margin: 5px 0;
+      font-weight: bold;
+      color: green;
+    }
+    .product button {
+      background: #0a9200;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .product button:hover {
+      background: #087d00;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Blinkit Clone</h1>
+  <div>
+    <a href="cart.html" class="cart-btn">🛒 Cart</a>
+    <span class="auth" id="authLinks">
+      <a href="login.html">Login</a>
+      <a href="signup.html">Signup</a>
+    </span>
+  </div>
+</header>
+
+<div class="product-grid" id="productList">
+  <!-- Products will be shown here -->
+</div>
+
+<script>
+  const products = [
+    { id: 1, name: "Apple (1kg)", price: 120, img: "https://i.imgur.com/VgU0TtU.jpg" },
+    { id: 2, name: "Milk (1L)", price: 55, img: "https://i.imgur.com/f1QHIvL.jpg" },
+    { id: 3, name: "Bread (400g)", price: 40, img: "https://i.imgur.com/6r4h5B3.jpg" },
+    { id: 4, name: "Maggie Pack", price: 15, img: "https://i.imgur.com/SNjBrLo.jpg" },
+    { id: 5, name: "Tomato (1kg)", price: 30, img: "https://i.imgur.com/zm1cNtt.jpg" },
+    { id: 6, name: "Amul Butter", price: 52, img: "https://i.imgur.com/hhCHG4O.jpg" }
+  ];
+
+  const productList = document.getElementById("productList");
+
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "product";
+    div.innerHTML = `
+      <img src="${p.img}" alt="${p.name}">
+      <h3>${p.name}</h3>
+      <p>₹${p.price}</p>
+      <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+    `;
+    productList.appendChild(div);
+  });
+
+  function addToCart(product) {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push(product);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("✅ Added to Cart");
+  }
+</script>
+
+</body>
+</html>
