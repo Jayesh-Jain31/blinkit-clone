@@ -1,34 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Your Cart</title>
+  <title>Cart – Blinkit Style</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css" />
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     h2 { color: #0a9200; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-    th { background-color: #0a9200; color: white; }
-    .qty-btn { padding: 4px 10px; cursor: pointer; }
-    .remove-btn { background-color: red; color: white; padding: 4px 8px; border: none; cursor: pointer; }
-    .checkout-btn { margin-top: 20px; padding: 10px 20px; background: #0a9200; color: white; border: none; }
-    .cart-badge { background: red; color: white; padding: 2px 6px; border-radius: 50%; font-size: 12px; vertical-align: top; margin-left: 5px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #0a9200;
+      color: white;
+    }
+    .qty-btn {
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .remove-btn {
+      background: red;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border: none;
+    }
+    .checkout-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #0a9200;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      background: red;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 50%;
+      font-size: 12px;
+      vertical-align: top;
+    }
   </style>
 </head>
 <body>
-  <h2>Your Cart</h2>
+
+  <div class="cart-header">
+    <h2>🛒 Your Cart</h2>
+    <div>
+      <a href="index.html">🏠 Home</a> |
+      <a href="cart.html">Cart <span id="cart-badge" class="badge">0</span></a>
+    </div>
+  </div>
+
   <div id="cart-container">
     <table id="cart-table">
       <thead>
         <tr>
-          <th>Product</th>
+          <th>Item</th>
           <th>Qty</th>
           <th>Price</th>
           <th>Remove</th>
         </tr>
       </thead>
-      <tbody id="cart-body"></tbody>
+      <tbody id="cart-body">
+        <tr><td colspan="4">Loading cart...</td></tr>
+      </tbody>
     </table>
     <h3>Total: ₹<span id="total-amount">0</span></h3>
     <a href="checkout.html"><button class="checkout-btn">Proceed to Checkout</button></a>
@@ -37,55 +86,55 @@
   <script>
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    function updateCartDisplay() {
-      const cartBody = document.getElementById("cart-body");
-      cartBody.innerHTML = "";
+    function renderCart() {
+      const tbody = document.getElementById("cart-body");
+      const badge = document.getElementById("cart-badge");
+      tbody.innerHTML = "";
       let total = 0;
+      let itemCount = 0;
 
-      cart.forEach((item, index) => {
+      if (cart.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">Your cart is empty.</td></tr>`;
+        badge.innerText = "0";
+        document.getElementById("total-amount").innerText = "0";
+        return;
+      }
+
+      cart.forEach((item, i) => {
         total += item.price * item.qty;
+        itemCount += item.qty;
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${item.name}</td>
           <td>
-            <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+            <button class="qty-btn" onclick="changeQty(${i}, -1)">-</button>
             ${item.qty}
-            <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+            <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
           </td>
           <td>₹${item.price * item.qty}</td>
-          <td><button class="remove-btn" onclick="removeItem(${index})">X</button></td>
+          <td><button class="remove-btn" onclick="removeItem(${i})">X</button></td>
         `;
-        cartBody.appendChild(row);
+        tbody.appendChild(row);
       });
 
       document.getElementById("total-amount").innerText = total;
-      document.getElementById("cart-badge").innerText = cart.reduce((sum, i) => sum + i.qty, 0);
+      badge.innerText = itemCount;
       localStorage.setItem("cart", JSON.stringify(cart));
     }
 
-    function updateQty(index, change) {
-      cart[index].qty += change;
+    function changeQty(index, delta) {
+      cart[index].qty += delta;
       if (cart[index].qty <= 0) cart.splice(index, 1);
-      updateCartDisplay();
+      renderCart();
     }
 
     function removeItem(index) {
       cart.splice(index, 1);
-      updateCartDisplay();
+      renderCart();
     }
 
-    updateCartDisplay();
-  </script>
-
-  <script>
-    // Insert cart badge in header if needed
-    const header = document.createElement("div");
-    header.innerHTML = `
-      <div style="position: fixed; top: 10px; right: 20px;">
-        <a href="cart.html">🛒 Cart <span id="cart-badge" class="cart-badge">${cart.reduce((s, i) => s + i.qty, 0)}</span></a>
-      </div>
-    `;
-    document.body.appendChild(header);
+    renderCart();
   </script>
 </body>
 </html>
