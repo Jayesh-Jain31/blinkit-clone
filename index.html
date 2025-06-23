@@ -1,85 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Blinkit Clone</title>
+  <title>Your Cart – Blinkit Style</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
 
-  <!-- Header -->
-  <header>
-    <h2>Blinkit</h2>
-    <div>
-      <a href="cart.html">🛒 Cart</a>
-      <a href="login.html" id="auth-link">Login</a>
-    </div>
-  </header>
+    h2 {
+      text-align: center;
+      color: #0a9200;
+    }
 
-  <!-- Product List -->
-  <main id="product-list"></main>
+    .cart-container {
+      max-width: 800px;
+      margin: auto;
+    }
 
-  <!-- Product Script -->
-  <script>
-    const products = [
-      {
-        id: 1,
-        name: "Amul Milk 1L",
-        price: 55,
-        image: "https://i.imgur.com/4r1Zq8r.jpg"
-      },
-      {
-        id: 2,
-        name: "Aashirvaad Atta 5kg",
-        price: 260,
-        image: "https://i.imgur.com/USnKpLP.jpg"
-      },
-      {
-        id: 3,
-        name: "Tata Salt 1kg",
-        price: 25,
-        image: "https://i.imgur.com/CuFg3gh.jpg"
-      },
-      {
-        id: 4,
-        name: "Red Label Tea 250g",
-        price: 90,
-        image: "https://i.imgur.com/x6EKq4P.jpg"
-      },
-      {
-        id: 5,
-        name: "Parle-G Biscuits",
-        price: 10,
-        image: "https://i.imgur.com/1ajcBqe.jpg"
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .item-details {
+      flex: 1;
+      margin-left: 20px;
+    }
+
+    .item-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .item-price {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .remove-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .total-section {
+      text-align: right;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+
+    .checkout-btn {
+      display: block;
+      margin: 30px auto;
+      padding: 12px 25px;
+      background-color: #0a9200;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .empty {
+      text-align: center;
+      font-size: 18px;
+      color: #888;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
       }
-    ];
 
-    const productList = document.getElementById("product-list");
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      .item-details {
+        margin-left: 0;
+        margin-top: 10px;
+      }
 
-    function renderProducts() {
-      productList.innerHTML = "";
-      products.forEach(p => {
-        const item = document.createElement("div");
-        item.className = "product";
-        item.innerHTML = `
-          <img src="${p.image}" alt="${p.name}" />
-          <h4>${p.name}</h4>
-          <p>₹${p.price}</p>
-          <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
-        `;
-        productList.appendChild(item);
-      });
-    }
-
-    function addToCart(product) {
-      cart.push(product);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert(`${product.name} added to cart`);
-    }
-
-    renderProducts();
-  </script>
-
-</body>
-  </html>
+      .total-section {
+        text-align: le
