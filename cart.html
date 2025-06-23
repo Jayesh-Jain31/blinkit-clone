@@ -1,124 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Your Cart – Blinkit Clone</title>
+  <title>Cart – Blinkit Clone</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
-    h2 { color: #0a9200; }
-    .cart-container {
-      max-width: 800px;
-      margin: auto;
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f7f7f7;
+    }
+    h2 {
+      text-align: center;
+      color: #0a9200;
     }
     .cart-item {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
       background: white;
       padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px #ccc;
     }
     .cart-item img {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      background: #f0f0f0;
-      margin-right: 15px;
-      border-radius: 6px;
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
     }
     .item-info {
       flex: 1;
+      margin-left: 15px;
     }
     .item-info h4 {
-      margin: 0 0 5px;
+      margin: 0;
+      font-size: 18px;
+    }
+    .item-info p {
+      margin: 5px 0;
     }
     .qty-controls {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 10px;
     }
-    button {
+    .qty-controls button {
       padding: 5px 10px;
-      border: none;
       background: #0a9200;
       color: white;
-      border-radius: 4px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
-    .remove-btn {
-      background: red;
-    }
-    .total {
+    .qty-controls span {
       font-weight: bold;
-      font-size: 18px;
-      text-align: right;
+    }
+    #total-box {
+      text-align: center;
       margin-top: 20px;
+      font-size: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px #ccc;
     }
   </style>
 </head>
 <body>
-
-  <div class="cart-container">
-    <h2>🛒 Your Cart</h2>
-    <div id="cart-list">Loading cart...</div>
-    <div class="total" id="cart-total"></div>
-    <br>
-    <a href="checkout.html"><button>Proceed to Checkout</button></a>
-  </div>
+  <h2>Your Cart</h2>
+  <div id="cart-list"></div>
+  <div id="total-box">Total: ₹<span id="total">0</span></div>
 
   <script>
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const cartList = document.getElementById("cart-list");
-    const cartTotal = document.getElementById("cart-total");
 
     function renderCart() {
+      const cartList = document.getElementById("cart-list");
+      const totalEl = document.getElementById("total");
       cartList.innerHTML = "";
       let total = 0;
 
-      if (cart.length === 0) {
-        cartList.innerHTML = "<p>Your cart is empty.</p>";
-        cartTotal.innerText = "";
-        return;
-      }
-
       cart.forEach((item, index) => {
-        total += item.price * (item.qty || 1);
+        const price = parseFloat(item.price) || 0;
+        const qty = parseInt(item.qty) || 1;
+        const subtotal = price * qty;
+        total += subtotal;
 
         const div = document.createElement("div");
         div.className = "cart-item";
         div.innerHTML = `
-          <img src="${item.image || 'https://via.placeholder.com/60'}">
+          <img src="${item.image || 'https://via.placeholder.com/80'}">
           <div class="item-info">
             <h4>${item.name}</h4>
-            <p>Price: ₹${item.price}</p>
+            <p>Price: ₹${price}</p>
             <div class="qty-controls">
               <button onclick="updateQty(${index}, -1)">-</button>
-              <span>${item.qty || 1}</span>
+              <span>${qty}</span>
               <button onclick="updateQty(${index}, 1)">+</button>
-              <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+              <button onclick="removeItem(${index})">Remove</button>
             </div>
           </div>
         `;
         cartList.appendChild(div);
       });
 
-      cartTotal.innerText = `Total: ₹${total}`;
+      totalEl.innerText = total.toFixed(2);
+      localStorage.setItem("cart", JSON.stringify(cart));
     }
 
-    function updateQty(index, change) {
-      cart[index].qty = (cart[index].qty || 1) + change;
-      if (cart[index].qty <= 0) removeItem(index);
-      else {
-        localStorage.setItem("cart", JSON.stringify(cart));
-        renderCart();
-      }
+    function updateQty(index, delta) {
+      const item = cart[index];
+      item.qty = (parseInt(item.qty) || 1) + delta;
+      if (item.qty < 1) item.qty = 1;
+      renderCart();
     }
 
     function removeItem(index) {
       cart.splice(index, 1);
-      localStorage.setItem("cart", JSON.stringify(cart));
       renderCart();
     }
 
