@@ -1,136 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checkout - Blinkit Clone</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Checkout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background: #f6f6f6;
+      background: #f5f5f5;
     }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
-      background: #fff;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+
+    .container {
+      padding: 15px;
     }
-    .product-card {
-      background: #fff;
-      padding: 1rem;
-      margin: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+
+    h2 {
+      text-align: center;
+      padding: 15px;
+      margin-top: 0;
     }
-    .product-info {
-      flex-grow: 1;
-    }
-    .product-img {
-      width: 50px;
-      margin-right: 1rem;
-    }
-    .quantity-control {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #e6ffe6;
-      padding: 0.3rem 0.6rem;
-      border-radius: 8px;
-    }
-    .summary {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 12px;
-      margin: 1rem;
-    }
-    .checkout-btn {
-      width: 90%;
-      margin: 1rem auto;
-      padding: 1rem;
-      background: #0a9200;
-      color: white;
-      font-weight: bold;
-      border: none;
+
+    .item {
+      background: white;
+      margin-bottom: 10px;
+      padding: 15px;
       border-radius: 10px;
-      font-size: 1.1rem;
-      display: block;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .back-btn {
-      text-decoration: none;
-      font-size: 1rem;
-      color: #333;
+
+    .address-bar {
+      background: #fff9e6;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+
+    .address-bar .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .add-address-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #28a745;
+      cursor: pointer;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ccc;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .bottom-bar button {
+      background-color: green;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .modal-content button {
+      margin-top: 15px;
+      padding: 10px;
+      width: 100%;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <a href="index.html" class="back-btn">← Back</a>
-    <h3>Checkout</h3>
-    <div></div>
+  <div class="container">
+    <h2>🧺 Checkout</h2>
+
+    <div class="address-bar">
+      <div class="top">
+        <strong>Delivering to:</strong>
+        <button class="add-address-btn" onclick="openAddressModal()">+</button>
+      </div>
+      <div id="addressText">No address saved</div>
+    </div>
+
+    <div id="cartItems"></div>
   </div>
 
-  <div id="cart-list"></div>
-
-  <div class="summary">
-    <p><strong>Delivering to:</strong> Jayesh, C-105 dharti Aagan guda road jhalam...</p>
-    <p><strong>Total:</strong> ₹<span id="total-price">0</span></p>
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div>₹<span id="totalPrice">0</span> Total</div>
+    <button onclick="placeOrder()">Place Order</button>
   </div>
 
-  <button class="checkout-btn">Place Order</button>
+  <!-- Modal -->
+  <div class="modal" id="addressModal">
+    <div class="modal-content">
+      <h3>Add/Change Address</h3>
+      <textarea id="addressInput" rows="4" placeholder="Enter full delivery address"></textarea>
+      <button onclick="saveAddress()">Save</button>
+    </div>
+  </div>
 
   <script>
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const cartList = document.getElementById("cart-list");
-    const totalSpan = document.getElementById("total-price");
 
-    function renderCart() {
-      cartList.innerHTML = "";
+    function loadCart() {
+      const cartContainer = document.getElementById("cartItems");
+      const totalEl = document.getElementById("totalPrice");
+      cartContainer.innerHTML = "";
       let total = 0;
-      cart.forEach((item, index) => {
-        total += item.price * item.qty;
+
+      cart.forEach((item, i) => {
         const div = document.createElement("div");
-        div.className = "product-card";
+        div.className = "item";
         div.innerHTML = `
-          <img src="${item.image || 'https://via.placeholder.com/50'}" class="product-img">
-          <div class="product-info">
+          <div>
             <strong>${item.name}</strong><br>
-            ₹${item.price} x ${item.qty} = ₹${item.price * item.qty}
+            ₹${item.price}
           </div>
-          <div class="quantity-control">
-            <button onclick="decreaseQty(${index})">-</button>
-            ${item.qty}
-            <button onclick="increaseQty(${index})">+</button>
+          <div>
+            Qty: ${item.qty || 1}
           </div>
         `;
-        cartList.appendChild(div);
+        total += (item.price * (item.qty || 1));
+        cartContainer.appendChild(div);
       });
-      totalSpan.innerText = total;
-      localStorage.setItem("cart", JSON.stringify(cart));
+
+      totalEl.innerText = total.toFixed(2);
     }
 
-    function increaseQty(index) {
-      cart[index].qty++;
-      renderCart();
+    function placeOrder() {
+      const address = localStorage.getItem("checkout_address") || "";
+      if (!address) return alert("Please add a delivery address.");
+      if (cart.length === 0) return alert("Your cart is empty.");
+      alert("Order placed successfully!");
+      localStorage.removeItem("cart");
+      window.location.href = "index.html";
     }
 
-    function decreaseQty(index) {
-      if (cart[index].qty > 1) {
-        cart[index].qty--;
-      } else {
-        cart.splice(index, 1);
-      }
-      renderCart();
+    function openAddressModal() {
+      document.getElementById("addressModal").style.display = "flex";
     }
 
-    renderCart();
+    function saveAddress() {
+      const address = document.getElementById("addressInput").value.trim();
+      if (!address) return alert("Please enter address.");
+      localStorage.setItem("checkout_address", address);
+      document.getElementById("addressText").innerText = address;
+      document.getElementById("addressModal").style.display = "none";
+    }
+
+    window.onload = () => {
+      loadCart();
+      const saved = localStorage.getItem("checkout_address");
+      if (saved) document.getElementById("addressText").innerText = saved;
+    };
   </script>
 </body>
 </html>
