@@ -1,105 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Cart - Blinkit Clone</title>
+  <title>Your Cart – Blinkit Style</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
   <style>
-    .cart-container {
-      padding: 20px;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
     }
+
+    h2 {
+      text-align: center;
+      color: #0a9200;
+    }
+
+    .cart-container {
+      max-width: 800px;
+      margin: auto;
+    }
+
     .cart-item {
       display: flex;
       align-items: center;
-      background: white;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
     }
+
     .cart-item img {
       width: 80px;
       height: 80px;
-      object-fit: contain;
-      margin-right: 15px;
+      object-fit: cover;
+      border-radius: 10px;
     }
-    .cart-item-details {
+
+    .item-details {
       flex: 1;
+      margin-left: 20px;
     }
-    .cart-item-details h4 {
-      margin: 0;
-    }
-    .cart-total {
-      text-align: right;
+
+    .item-name {
       font-size: 18px;
+      font-weight: bold;
+    }
+
+    .item-price {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .remove-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .total-section {
+      text-align: right;
+      font-size: 20px;
       margin-top: 20px;
     }
+
     .checkout-btn {
       display: block;
-      margin: 20px auto 0;
-      padding: 10px 20px;
-      background: #0a9200;
+      margin: 30px auto;
+      padding: 12px 25px;
+      background-color: #0a9200;
       color: white;
       border: none;
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
     }
-    .empty-message {
+
+    .empty {
       text-align: center;
       font-size: 18px;
-      color: gray;
-      margin-top: 50px;
+      color: #888;
+      margin-top: 40px;
     }
-  </style>
-</head>
-<body>
-  <header>
-    <h2>🛒 Cart</h2>
-    <div>
-      <a href="index.html">Home</a>
-    </div>
-  </header>
 
-  <div class="cart-container" id="cart-container">
-    <!-- Items will be injected here -->
-  </div>
+    @media (max-width: 600px) {
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-  <script>
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const container = document.getElementById("cart-container");
+      .item-details {
+        margin-left: 0;
+        margin-top: 10px;
+      }
 
-    if (cart.length === 0) {
-      container.innerHTML = '<p class="empty-message">Your cart is empty 😢</p>';
-    } else {
-      let total = 0;
-      cart.forEach(item => {
-        total += item.price;
-        const div = document.createElement("div");
-        div.className = "cart-item";
-        div.innerHTML = `
-          <img src="${item.image}" alt="${item.name}" />
-          <div class="cart-item-details">
-            <h4>${item.name}</h4>
-            <p>₹${item.price}</p>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-
-      const totalDiv = document.createElement("div");
-      totalDiv.className = "cart-total";
-      totalDiv.innerText = `Total: ₹${total}`;
-      container.appendChild(totalDiv);
-
-      const checkoutBtn = document.createElement("button");
-      checkoutBtn.className = "checkout-btn";
-      checkoutBtn.innerText = "Proceed to Checkout";
-      checkoutBtn.onclick = () => {
-        window.location.href = "checkout.html";
-      };
-      container.appendChild(checkoutBtn);
-    }
-  </script>
-</body>
-</html>
+      .total-section {
+        text-align: le
+        
