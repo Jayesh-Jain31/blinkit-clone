@@ -1,9 +1,178 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test</title>
+  <title>Blinkit Style Grocery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f6f6f6;
+      color: #333;
+    }
+
+    header {
+      background: #0a9200;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header .auth {
+      font-size: 16px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    .card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .card h4 {
+      margin: 10px 0 5px;
+      font-size: 16px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .card button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #0a9200;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .card button:hover {
+      background: #087b00;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello Blinkit!</h1>
+
+  <header>
+    <h1>Blinkit Clone</h1>
+    <div class="auth" id="authLinks">
+      <a href="login.html" style="color:white; text-decoration:none; margin-right:15px;">Login</a>
+      <a href="signup.html" style="color:white; text-decoration:none;">Signup</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="products" id="product-list">
+      <!-- Products will load here -->
+    </div>
+  </div>
+
+  <script>
+    // Replace with Firebase auth if needed
+    const user = localStorage.getItem("userLoggedIn");
+
+    const authLinks = document.getElementById("authLinks");
+    if (user) {
+      authLinks.innerHTML = `<button onclick="logout()" style="background:white;color:#0a9200;padding:6px 14px;border-radius:6px;border:none;">Logout</button>`;
+    }
+
+    function logout() {
+      localStorage.removeItem("userLoggedIn");
+      location.reload();
+    }
+
+    const products = [
+      {
+        name: "Fresh Bananas",
+        price: 35,
+        image: "https://i.ibb.co/zrZ5c2K/bananas.jpg"
+      },
+      {
+        name: "Amul Milk 1L",
+        price: 60,
+        image: "https://i.ibb.co/ZxWZB9t/milk.jpg"
+      },
+      {
+        name: "Aashirvaad Atta 5kg",
+        price: 280,
+        image: "https://i.ibb.co/vcZ9CVN/atta.jpg"
+      },
+      {
+        name: "Maggi Noodles",
+        price: 15,
+        image: "https://i.ibb.co/Wn6bNb5/maggi.jpg"
+      },
+      {
+        name: "Tata Salt 1kg",
+        price: 28,
+        image: "https://i.ibb.co/LhN3Skq/salt.jpg"
+      },
+      {
+        name: "Coca Cola 750ml",
+        price: 40,
+        image: "https://i.ibb.co/PG74wnR/cola.jpg"
+      }
+    ];
+
+    const productList = document.getElementById("product-list");
+
+    products.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <h4>${item.name}</h4>
+        <p>₹${item.price}</p>
+        <button onclick="addToCart(${index})">Add to Cart</button>
+      `;
+      productList.appendChild(card);
+    });
+
+    function addToCart(index) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.push(products[index]);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("🛒 Added to cart!");
+    }
+  </script>
+
 </body>
 </html>
